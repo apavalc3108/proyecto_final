@@ -36,4 +36,4 @@ Para poder ejecutar este proyecto, necesitas tener un servidor web con soporte p
 
 1. **Clona el repositorio** en tu servidor:
    ```bash
-   git clone https://github.com/tu_usuario/proyecto_final.git
+   git clone https://github.com/apavalc3108/proyecto_final.git
