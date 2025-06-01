@@ -8,8 +8,6 @@
 </head>
 <body>
 
-<button class="btn-dashboard" onclick="window.location.href='dashboard.php'">Volver al Dashboard</button>
-
     <h2>Logs de Conexión</h2>
     <table border="1">
         <thead>
