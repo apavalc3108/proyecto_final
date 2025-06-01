@@ -1,4 +1,3 @@
-
 <?php
 function recoge($key, $type = "", $default = null, $allowed = null)
 {
@@ -42,4 +41,3 @@ function recoge($key, $type = "", $default = null, $allowed = null)
     }
     return $tmp;
 }
-<?
