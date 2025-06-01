@@ -1,31 +1,21 @@
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logs de Conexión</title>
-    <link rel="stylesheet" href="style.css">
-</head>
 <?php
 session_start();
 
-function recoge($var) {
-    return isset($_POST[$var]) ? trim(htmlspecialchars($_POST[$var], ENT_QUOTES, "UTF-8")) : "";
+if (!isset($_SESSION['db_host'], $_SESSION['db_name'], $_SESSION['db_user'], $_SESSION['db_password'])) {
+    die("Faltan datos de conexión. Vuelve a iniciar sesión.");
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $host = recoge("host");
-    $dbname = recoge("dbname");
-    $user = recoge("user");
-    $password = recoge("password");
+$host = $_SESSION['db_host'];
+$dbname = $_SESSION['db_name'];
+$user = $_SESSION['db_user'];
+$password = $_SESSION['db_password'];
 
-    try {
-        // Conexión única a la base de datos
-        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-        $pdo = new PDO($dsn, $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-        ]);
-
-        echo "<h2>Conexión exitosa a la base de datos: $dbname</h2>";
+try {
+    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $user, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
 
     $logs = $pdo->query("SELECT * FROM logs_conexion ORDER BY fecha DESC")->fetchAll();
 
@@ -53,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "</table>";
 
 } catch (PDOException $e) {
-    echo "<h2>Error al obtener logs:</h2> " . $e->getMessage();
+    echo "Error al obtener logs: " . htmlspecialchars($e->getMessage());
 }
 ?>
-
