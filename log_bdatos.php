@@ -1,12 +1,12 @@
 <?php
 session_start();
-include "recoge.php"; // Asegúrate de que solo sanea, no vacía valores válidos
+include "recoge.php"; // Función para limpiar entrada
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $host = recoge("host");      // Por ejemplo: mi-db-rds.endpoint.amazonaws.com
-    $dbname = recoge("dbname");  // Nombre de la base
-    $user = recoge("user");      // Usuario RDS
-    $password = recoge("password"); // Contraseña RDS
+    $host = recoge("host");
+    $dbname = recoge("dbname");
+    $user = recoge("user");
+    $password = recoge("password");
 
     try {
         $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
@@ -15,12 +15,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
 
-        // Almacena información necesaria (nunca la contraseña)
+        // Guardar credenciales en sesión (incluyendo contraseña)
         $_SESSION['db_host'] = $host;
         $_SESSION['db_name'] = $dbname;
         $_SESSION['db_user'] = $user;
+        $_SESSION['db_password'] = $password;  // ¡Importante!
 
-        // Crea tabla si no existe
+        // Crear tabla logs_conexion si no existe
         $pdo->exec("CREATE TABLE IF NOT EXISTS logs_conexion (
             id INT AUTO_INCREMENT PRIMARY KEY,
             usuario VARCHAR(50) NOT NULL,
@@ -30,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
 
-        // Registra la conexión exitosa
+        // Insertar registro de conexión exitosa
         $stmt = $pdo->prepare("INSERT INTO logs_conexion (usuario, base_datos, estado, mensaje) VALUES (?, ?, ?, ?)");
         $stmt->execute([$user, $dbname, "Éxito", "Conexión establecida"]);
 
@@ -38,10 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
 
     } catch (PDOException $e) {
-        // Registra fallo en archivo de logs o en RDS si posible
         error_log("Error de conexión: " . $e->getMessage());
-
-        // Redirige con error
         header("Location: form_bdatos.php?error=1");
         exit();
     }
